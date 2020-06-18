@@ -25,6 +25,7 @@
       @input="handleInput"
       @focus="handleFocus"
       @blur="handleBlur"
+      @animationstart="handleAnimationStart"
     />
     <label
       v-if="label"
@@ -128,6 +129,7 @@ export default {
       currentType: this.type || 'text',
       isActive: undefined,
       isValid: undefined,
+      isAutofill: false, // This property is used to detect browser's autofill only
       error: null,
       helper: null,
     };
@@ -142,7 +144,7 @@ export default {
     fieldClasses() {
       return {
         'field--active': this.isActive,
-        'field--filled': !this.isEmpty,
+        'field--filled': !this.isEmpty || this.isAutofill,
         'field--invalid': this.isValid === false,
         'field--disabled': this.disabled,
         'field--hasIcon': this.icon,
@@ -225,19 +227,55 @@ export default {
         this.hideError();
       }
     },
+    // This handler is used to detect browser's autofill only
+    handleAnimationStart({ animationName }) {
+      this.$nextTick(() => {
+        if (animationName === 'autofillStart') {
+          this.isAutofill = true;
+        } else if (animationName === 'autofillCancel') {
+          this.isAutofill = false;
+        }
+      });
+    },
   },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+<!-- Those animations are used to detect browser's autofill only -->
+<style>
+@keyframes autofillStart {
+  from {
+  }
+  to {
+  }
+}
+
+@keyframes autofillCancel {
+  from {
+  }
+  to {
+  }
+}
+</style>
+
 <style scoped lang="scss">
 @import 'homeday-blocks/src/styles/mixins.scss';
 @import 'homeday-blocks/src/styles/inputs.scss';
 
 .field {
+  &__input {
+    &:-webkit-autofill {
+      animation-name: autofillStart;
+    }
+    &:not(:-webkit-autofill) {
+      animation-name: autofillCancel;
+    }
+  }
+
   &__error {
     width: 100%;
     text-align: left;
+
     &--helper {
       display: block;
       color: getShade($quaternary-color, 80);

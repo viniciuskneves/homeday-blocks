@@ -280,4 +280,33 @@ describe('HdInput', () => {
 
     expect(wrapper.find(ERROR_SELECTOR).text()).toBe(errorMsg);
   });
+
+  describe('browser autofill behavior', () => {
+    // Method has to be mocked as we can't play with -webkit--autofill
+    it('handles browser autofill', () => {
+      const handleAnimationStart = jest.fn();
+      const wrapper = wrapperBuilder({
+        methods: {
+          handleAnimationStart,
+        },
+      });
+      const input = wrapper.get('input');
+
+      expect(wrapper.vm.isAutofill).toBe(false);
+
+      input.trigger('animationstart');
+
+      expect(handleAnimationStart).toHaveBeenCalled();
+    });
+
+    it('sets filled state when isAutofill is true', () => {
+      const wrapper = wrapperBuilder({
+        data: {
+          isAutofill: true,
+        },
+      });
+
+      expect(wrapper.classes('field--filled')).toBe(true);
+    });
+  });
 });
