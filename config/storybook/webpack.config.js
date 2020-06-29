@@ -1,5 +1,7 @@
 const generateWebpackAlias = require('../../webpack-alias');
 
+const BASE_URL = process.env.BASE_URL || '';
+
 module.exports = ({ config }) => {
   // Extend config as you need.
   // eslint-disable-next-line
@@ -17,5 +19,8 @@ module.exports = ({ config }) => {
       },
     ],
   });
+  // eslint-disable-next-line
+  config.output.publicPath = BASE_URL;
+
   return config;
 };
